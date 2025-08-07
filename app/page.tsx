@@ -496,7 +496,7 @@ export default function AlltechSolutions() {
         ref={aboutRef} 
         className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
         style={{
-          transform: `translate3d(0, ${Math.max(0, scrollY - window.innerHeight) * 0.1}px, 0)`,
+          transform: `translate3d(0, ${Math.max(0, scrollY - (typeof window !== 'undefined' ? window.innerHeight : 800)) * 0.1}px, 0)`,
           willChange: 'transform'
         }}
       >
