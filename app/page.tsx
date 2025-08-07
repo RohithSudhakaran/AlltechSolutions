@@ -176,7 +176,7 @@ export default function AlltechSolutions() {
     setFormStatus('loading')
     
     try {
-      // Simulate API call - replace with your actual backend endpoint
+      // API call to send contact form
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -185,7 +185,10 @@ export default function AlltechSolutions() {
         body: JSON.stringify(formData),
       })
       
-      if (response.ok) {
+      const result = await response.json()
+      console.log('API Response:', result)
+      
+      if (response.ok && result.success) {
         setFormStatus('success')
         setFormData({ name: '', email: '', phone: '', message: '' })
         
@@ -194,7 +197,8 @@ export default function AlltechSolutions() {
           setFormStatus('idle')
         }, 5000)
       } else {
-        throw new Error('Failed to send message')
+        console.error('API Error:', result)
+        throw new Error(result.error || 'Failed to send message')
       }
     } catch (error) {
       console.error('Form submission error:', error)
