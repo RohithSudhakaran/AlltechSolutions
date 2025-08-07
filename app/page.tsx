@@ -224,15 +224,18 @@ export default function AlltechSolutions() {
   ]
 
   const clients = [
-    { name: 'Walkaroo India Ltd', logo: '/logos/walkaroo-logo.png' },
-    { name: 'Chennai Silks', logo: '/logos/chennai-silks-logo.png' },
-    { name: 'Propel Industries', logo: '/logos/propel-industries-logo.png' },
-    { name: 'Elgi Equipments Ltd', logo: '/logos/elgi-equipments-logo.png' },
-    { name: 'Ravilla Aerospace', logo: '/logos/ravilla-aerospace-logo.png' },
     { name: 'L&T MFFK', logo: '/logos/lt-mffk-logo.png' },
+    { name: 'Elgi Equipments Ltd', logo: '/logos/elgi-equipments-logo.png' },
     { name: 'NEXG Space Creators', logo: '/logos/nexg-space-logo.png' },
+    { name: 'Aglysis Technologies', logo: '/logos/aglysis-technologies-logo.png' },
+    { name: 'ARS Steels and Alloys', logo: '/logos/ARS Steels and Alloys.png' },
     { name: 'Lennox Technologies', logo: '/logos/lennox-technologies-logo.png' },
-    { name: 'Aglysis Technologies', logo: '/logos/aglysis-technologies-logo.png' }
+    { name: 'Propel Industries', logo: '/logos/propel-industries-logo.png' },
+    { name: 'Teemage Builders', logo: '/logos/TEEMAGE BUILDERS.png' },
+    { name: 'Ravilla Aerospace', logo: '/logos/ravilla-aerospace-logo.png' },
+    { name: 'AMSAK Cranes', logo: '/logos/AMSAK CRANES.png' },
+    { name: 'Walkaroo India Ltd', logo: '/logos/walkaroo-logo.png' },
+    { name: 'Chennai Silks', logo: '/logos/chennai-silks-logo.png' }
   ]
 
   const stats = [
@@ -425,7 +428,7 @@ export default function AlltechSolutions() {
         </div>
       </section>
 
-      {/* Clients Section with floating animation */}
+      {/* Clients Section with sliding animation */}
       <section id="clients" className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible.clients ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -433,48 +436,97 @@ export default function AlltechSolutions() {
             <p className="text-lg text-gray-600">Trusted by leading companies across industries</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {clients.map((client, index) => (
-              <div
-                key={index}
-                className={`group bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-500 text-center border border-gray-100 transform hover:scale-105 hover:rotate-1 relative ${
-                  isVisible.clients ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                }`}
-                style={{ 
-                  transitionDelay: `${index * 0.1}s`,
-                  animation: isVisible.clients ? `float ${3 + (index % 3)}s ease-in-out infinite ${index * 0.5}s` : 'none'
-                }}
-              >
-                <div className="h-32 flex items-center justify-center">
-                  <img 
-                    src={client.logo}
-                    alt={`${client.name} logo`}
-                    className="max-h-28 max-w-full object-contain hover:scale-110 transition-transform duration-300 filter hover:brightness-110"
-                    onError={(e) => {
-                      // Fallback to initials if logo fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
-                  <div 
-                    className="text-4xl font-bold text-blue-600 bg-blue-50 px-6 py-5 rounded-lg hidden items-center justify-center"
-                    style={{ display: 'none' }}
-                  >
-                    {client.name.split(' ').map(word => word[0]).join('')}
-                  </div>
-                </div>
-                
-                {/* Hover tooltip */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap z-10">
-                  {client.name}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                </div>
-              </div>
-            ))}
+          {/* Sliding Logos Container */}
+          <div 
+            className="relative overflow-hidden"
+            style={{
+              padding: '60px 0',
+              whiteSpace: 'nowrap',
+              position: 'relative'
+            }}
+          >
+            {/* Left Gradient Fade */}
+            <div 
+              className="absolute top-0 left-0 h-full z-10 pointer-events-none"
+              style={{
+                width: '250px',
+                background: 'linear-gradient(to right, rgb(249, 250, 251), rgba(249, 250, 251, 0))'
+              }}
+            ></div>
+            
+            {/* Right Gradient Fade */}
+            <div 
+              className="absolute top-0 right-0 h-full z-10 pointer-events-none"
+              style={{
+                width: '250px',
+                background: 'linear-gradient(to left, rgb(249, 250, 251), rgba(249, 250, 251, 0))'
+              }}
+            ></div>
+            
+            {/* Sliding logos wrapper */}
+            <div 
+              className="flex"
+              style={{
+                animation: isVisible.clients ? '35s slide infinite linear' : 'none',
+                width: 'calc(200% + 192px)' // Double width plus one logo width for seamless loop
+              }}
+            >
+              {/* First set of logos */}
+              {clients.map((client, index) => (
+                <img
+                  key={`first-${index}`}
+                  src={client.logo}
+                  alt={`${client.name} logo`}
+                  className="flex-shrink-0 object-contain hover:scale-110 transition-transform duration-300 filter hover:brightness-110"
+                  style={{
+                    height: client.name === 'ARS Steels and Alloys' || client.name === 'Teemage Builders' ? '72px' : '120px',
+                    width: client.name === 'ARS Steels and Alloys' || client.name === 'Teemage Builders' ? '115px' : '192px',
+                    objectFit: 'contain',
+                    margin: '0 48px',
+                    alignSelf: 'center'
+                  }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              ))}
+              
+              {/* Second set (duplicate for seamless loop) */}
+              {clients.map((client, index) => (
+                <img
+                  key={`second-${index}`}
+                  src={client.logo}
+                  alt={`${client.name} logo`}
+                  className="flex-shrink-0 object-contain hover:scale-110 transition-transform duration-300 filter hover:brightness-110"
+                  style={{
+                    height: client.name === 'ARS Steels and Alloys' || client.name === 'Teemage Builders' ? '72px' : '120px',
+                    width: client.name === 'ARS Steels and Alloys' || client.name === 'Teemage Builders' ? '115px' : '192px',
+                    objectFit: 'contain',
+                    margin: '0 48px',
+                    alignSelf: 'center'
+                  }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              ))}
+            </div>
           </div>
         </div>
+        
+        {/* CSS Keyframes */}
+        <style jsx>{`
+          @keyframes slide {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(-100%);
+            }
+          }
+        `}</style>
       </section>
 
       {/* Projects Section with 3D rotating carousel */}
