@@ -17,6 +17,7 @@ export default function AlltechSolutions() {
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [scrollY, setScrollY] = useState(0)
   const heroRef = useRef(null)
   const aboutRef = useRef(null)
   const servicesRef = useRef(null)
@@ -78,21 +79,24 @@ export default function AlltechSolutions() {
       }
 
       // Stagger the animations
-      setTimeout(() => animateCounter(500, 'projects'), 100)
+      setTimeout(() => animateCounter(300, 'projects'), 100)
       setTimeout(() => animateCounter(50, 'clients'), 200)
       setTimeout(() => animateCounter(15, 'experience'), 300)
     }
   }, [isVisible.about])
 
-  // Scroll handling with throttling
+  // Scroll handling with throttling and parallax
   useEffect(() => {
     let ticking = false
     
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
+          const scrollPosition = window.scrollY
+          setScrollY(scrollPosition)
+          
           const sections = ['home', 'about', 'services', 'clients', 'projects', 'contact']
-          const scrollPosition = window.scrollY + 100
+          const adjustedScrollPosition = scrollPosition + 100
 
           for (const section of sections) {
             const element = document.getElementById(section)
@@ -100,7 +104,7 @@ export default function AlltechSolutions() {
               const offsetTop = element.offsetTop
               const offsetHeight = element.offsetHeight
               
-              if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+              if (adjustedScrollPosition >= offsetTop && adjustedScrollPosition < offsetTop + offsetHeight) {
                 setActiveSection(section)
                 break
               }
@@ -220,7 +224,9 @@ export default function AlltechSolutions() {
     { name: 'Chemical Anchoring', icon: '⚗️', description: 'Professional chemical anchoring for structural connections' },
     { name: 'Floating Canopies', icon: '☂️', description: 'Elegant canopy solutions for outdoor spaces' },
     { name: 'Hand Railings – SS & MS', icon: '🛡️', description: 'Stainless steel and mild steel railing systems' },
-    { name: 'Interiors & Steel Framings', icon: '🏢', description: 'Interior steel frameworks and structural solutions' }
+    { name: 'Interiors & Steel Framings', icon: '🏢', description: 'Interior steel frameworks and structural solutions' },
+    { name: 'EOT Cranes', icon: '🏗️', description: 'Electric Overhead Traveling cranes for heavy lifting operations' },
+    { name: 'Gantry Cranes', icon: '🏗️', description: 'Robust gantry crane systems for industrial applications' }
   ]
 
   const clients = [
@@ -240,20 +246,20 @@ export default function AlltechSolutions() {
 
   const stats = [
     { icon: Award, label: 'Projects Completed', value: counters.projects, suffix: '+' },
-    { icon: Users, label: 'Happy Clients', value: counters.clients, suffix: '+' },
+    { icon: Shield, label: 'Safety Standards Met', value: counters.clients, suffix: '+' },
     { icon: Clock, label: 'Years Experience', value: counters.experience, suffix: '+' },
     { icon: Star, label: 'Quality Rating', value: 5, suffix: '/5' }
   ]
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden font-sans">
       {/* Fixed Navbar with blur effect */}
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-lg z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors cursor-pointer">
-                Alltech Solutions
+              <h1 className="text-xl font-black text-gray-900 hover:text-blue-600 transition-colors cursor-pointer tracking-tight">
+                ALLTECH SOLUTIONS
               </h1>
             </div>
             
@@ -271,7 +277,7 @@ export default function AlltechSolutions() {
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`px-3 py-2 text-sm font-medium transition-all duration-300 hover:text-blue-600 hover:scale-105 ${
+                    className={`px-3 py-2 text-sm font-bold uppercase tracking-wide transition-all duration-300 hover:text-blue-600 hover:scale-105 ${
                       activeSection === item.id ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-700'
                     }`}
                   >
@@ -317,54 +323,214 @@ export default function AlltechSolutions() {
         </div>
       </nav>
 
-      {/* Hero Section with parallax effect */}
-      <section id="home" ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-transform duration-1000"
-          style={{ backgroundImage: 'url(/hero-welding.jpg)' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70"></div>
+      {/* Hero Section with modern dark design */}
+      <section id="home" ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800">
+        {/* Subtle animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute top-1/4 left-10 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"
+            style={{
+              transform: `translate3d(${scrollY * 0.1}px, ${scrollY * -0.05}px, 0)`,
+              willChange: 'transform'
+            }}
+          ></div>
+          <div 
+            className="absolute bottom-1/3 right-20 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"
+            style={{
+              transform: `translate3d(${scrollY * -0.08}px, ${scrollY * 0.03}px, 0)`,
+              willChange: 'transform'
+            }}
+          ></div>
         </div>
         
-        <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8 animate-fade-in">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-slide-up">
-            <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              Alltech Solutions
-            </span>
-          </h1>
-          <p className="text-lg sm:text-xl lg:text-2xl mb-8 font-light h-10 flex items-center justify-center">
-            <span className="border-r-2 border-white animate-pulse pr-1">{typedText}</span>
-          </p>
-          <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-            <button
-              onClick={() => scrollToSection('contact')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg text-base transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1"
-            >
-              Request a Quote
-            </button>
-            <button
-              onClick={() => scrollToSection('services')}
-              className="border-2 border-white text-white hover:bg-white hover:text-gray-900 font-semibold py-3 px-6 rounded-lg text-base transition-all duration-300 transform hover:scale-105"
-            >
-              Our Services
-            </button>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-screen">
+          {/* Left Content */}
+          <div 
+            className="text-white space-y-8"
+            style={{
+              transform: `translate3d(0, ${scrollY * 0.2}px, 0)`,
+              willChange: 'transform'
+            }}
+          >
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-none">
+              <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+                ALLTECH
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+                SOLUTIONS
+              </span>
+            </h1>
+            
+            <div className="space-y-3 text-lg sm:text-xl font-medium">
+              <p className="text-gray-300 tracking-wide">
+                FABRICATION EXPERTS – COIMBATORE
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-8">
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:via-pink-700 hover:to-purple-800 text-white font-bold py-4 px-8 rounded-full text-sm uppercase tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 border border-purple-500/20"
+              >
+                GET QUOTE
+              </button>
+              <button
+                onClick={() => scrollToSection('services')}
+                className="border-2 border-gray-500 text-gray-300 hover:bg-gray-300 hover:text-black font-bold py-4 px-8 rounded-full text-sm uppercase tracking-wider transition-all duration-300 transform hover:scale-105"
+              >
+                OUR SERVICES
+              </button>
+            </div>
+          </div>
+          
+          {/* Right Content - Welding Helmet */}
+          <div 
+            className="flex justify-center items-center lg:justify-end"
+            style={{
+              transform: `translate3d(0, ${scrollY * 0.1}px, 0)`,
+              willChange: 'transform'
+            }}
+          >
+            <div className="relative">
+              {/* Main welding helmet container */}
+              <div className="relative w-80 h-80 sm:w-96 sm:h-96">
+                {/* Helmet base */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-t-full border-2 border-gray-700/50 shadow-2xl">
+                  {/* Helmet visor */}
+                  <div className="absolute top-16 left-8 right-8 h-32 bg-gradient-to-b from-gray-900 to-black rounded-lg border border-gray-600/50">
+                    {/* Visor reflection */}
+                    <div className="absolute inset-2 bg-gradient-to-br from-blue-900/20 to-transparent rounded"></div>
+                  </div>
+                  
+                  {/* Side vents */}
+                  <div className="absolute left-4 top-32 space-y-2">
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                  </div>
+                  <div className="absolute right-4 top-32 space-y-2">
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                    <div className="w-8 h-1 bg-gray-600 rounded"></div>
+                  </div>
+                  
+                  {/* Orange accent details */}
+                  <div className="absolute bottom-16 left-12 w-6 h-6 bg-orange-500 rounded-full shadow-lg"></div>
+                  <div className="absolute bottom-20 right-16 w-4 h-4 bg-orange-400 rounded-full shadow-lg"></div>
+                </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent rounded-t-full blur-2xl scale-110"></div>
+                
+                {/* Animated particles around helmet */}
+                <div className="absolute -top-4 -left-4 w-2 h-2 bg-orange-400 rounded-full animate-ping"></div>
+                <div className="absolute -bottom-4 -right-4 w-1 h-1 bg-orange-500 rounded-full animate-pulse"></div>
+                <div className="absolute top-1/2 -right-6 w-1 h-1 bg-yellow-400 rounded-full animate-bounce"></div>
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* Top navigation hint */}
+        <div className="absolute top-8 right-8 hidden lg:block">
+          <button
+            onClick={() => scrollToSection('contact')}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-6 rounded-full text-xs uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            CONTACT ME
+          </button>
+        </div>
+
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <ChevronDown className="h-8 w-8 text-white" />
+        <div 
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"
+          style={{
+            transform: `translate(-50%, ${scrollY * 0.2}px)`,
+            opacity: Math.max(0, 1 - scrollY / 400)
+          }}
+        >
+          <ChevronDown className="h-8 w-8 text-gray-500" />
+        </div>
+      </section>
+
+      {/* Parallax Transition Section */}
+      <section className="h-40 relative overflow-hidden bg-gradient-to-b from-black/10 to-gray-50">
+        <div 
+          className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent"
+          style={{
+            transform: `translate3d(0, ${scrollY * 0.2}px, 0)`,
+            willChange: 'transform'
+          }}
+        ></div>
+        
+        {/* Floating geometric shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute top-10 left-1/4 w-16 h-16 border-2 border-blue-300/30 rotate-45"
+            style={{
+              transform: `translate3d(${scrollY * 0.1}px, ${scrollY * -0.05}px, 0) rotate(${45 + scrollY * 0.1}deg)`,
+              willChange: 'transform'
+            }}
+          ></div>
+          <div 
+            className="absolute top-20 right-1/3 w-12 h-12 bg-blue-200/20 rounded-full"
+            style={{
+              transform: `translate3d(${scrollY * -0.08}px, ${scrollY * 0.03}px, 0)`,
+              willChange: 'transform'
+            }}
+          ></div>
+          <div 
+            className="absolute bottom-10 left-1/2 w-8 h-20 bg-gradient-to-t from-blue-300/20 to-transparent rounded-full"
+            style={{
+              transform: `translate3d(${scrollY * 0.05}px, ${scrollY * -0.02}px, 0)`,
+              willChange: 'transform'
+            }}
+          ></div>
         </div>
       </section>
 
       {/* About Section with animated stats */}
-      <section id="about" ref={aboutRef} className="py-20 bg-gradient-to-br from-gray-50 to-white">
+      <section 
+        id="about" 
+        ref={aboutRef} 
+        className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden"
+        style={{
+          transform: `translate3d(0, ${Math.max(0, scrollY - window.innerHeight) * 0.1}px, 0)`,
+          willChange: 'transform'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Parallax background elements */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div 
+              className="absolute top-10 left-10 w-32 h-32 bg-blue-100/30 rounded-full blur-xl"
+              style={{
+                transform: `translate3d(${scrollY * 0.15}px, ${scrollY * 0.1}px, 0)`,
+                willChange: 'transform'
+              }}
+            ></div>
+            <div 
+              className="absolute top-20 right-20 w-48 h-48 bg-purple-100/20 rounded-full blur-2xl"
+              style={{
+                transform: `translate3d(${scrollY * -0.1}px, ${scrollY * 0.05}px, 0)`,
+                willChange: 'transform'
+              }}
+            ></div>
+            <div 
+              className="absolute bottom-10 left-1/3 w-24 h-24 bg-green-100/25 rounded-full blur-lg"
+              style={{
+                transform: `translate3d(${scrollY * 0.08}px, ${scrollY * -0.12}px, 0)`,
+                willChange: 'transform'
+              }}
+            ></div>
+          </div>
+
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">About Us</h2>
+            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6 uppercase tracking-tight">ABOUT US</h2>
             <div className="max-w-4xl mx-auto">
-              <p className="text-lg text-gray-700 leading-relaxed mb-12">
-                Alltech Solutions is a fabrication company based in Coimbatore, delivering precision 
+              <p className="text-xl text-gray-700 leading-relaxed mb-12 font-medium">
+                ALLTECH SOLUTIONS is a fabrication company based in Coimbatore, delivering precision 
                 structural and architectural fabrication solutions. With a skilled team and years of 
                 experience, we specialize in pre-engineered structures, roofing, steel framings, and more. 
                 Reliability, quality, and client satisfaction are at the core of what we do.
@@ -383,10 +549,10 @@ export default function AlltechSolutions() {
                 style={{ transitionDelay: `${index * 0.2}s` }}
               >
                 <stat.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <div className="text-3xl font-bold text-gray-900 mb-2">
+                <div className="text-4xl font-black text-gray-900 mb-2 tracking-tight">
                   {stat.value}{stat.suffix}
                 </div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-gray-600 font-bold uppercase tracking-wide text-sm">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -397,9 +563,9 @@ export default function AlltechSolutions() {
       <section id="services" ref={servicesRef} className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`text-center mb-16 transition-all duration-1000 ${isVisible.services ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Our Services</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We provide comprehensive fabrication solutions with cutting-edge technology and expert craftsmanship
+            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6 uppercase tracking-tight">OUR SERVICES</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium leading-relaxed">
+              WE PROVIDE COMPREHENSIVE FABRICATION SOLUTIONS WITH CUTTING-EDGE TECHNOLOGY AND EXPERT CRAFTSMANSHIP
             </p>
           </div>
           
@@ -415,10 +581,10 @@ export default function AlltechSolutions() {
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {service.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-black text-gray-900 mb-3 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
                   {service.name}
                 </h3>
-                <p className="text-gray-600 text-sm leading-relaxed">
+                <p className="text-gray-600 text-sm leading-relaxed font-medium">
                   {service.description}
                 </p>
                 <div className="mt-4 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-500"></div>
@@ -431,7 +597,7 @@ export default function AlltechSolutions() {
       {/* Clients Section with sliding animation */}
       <section id="clients" className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-16 transition-all duration-1000 ${isVisible.clients ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="text-center mb-16 opacity-100 translate-y-0 transition-all duration-1000">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Our Clients</h2>
             <p className="text-lg text-gray-600">Trusted by leading companies across industries</p>
           </div>
@@ -442,15 +608,16 @@ export default function AlltechSolutions() {
             style={{
               padding: '60px 0',
               whiteSpace: 'nowrap',
-              position: 'relative'
+              position: 'relative',
+              isolation: 'isolate' // Create new stacking context
             }}
           >
             {/* Left Gradient Fade */}
             <div 
               className="absolute top-0 left-0 h-full z-10 pointer-events-none"
               style={{
-                width: '250px',
-                background: 'linear-gradient(to right, rgb(249, 250, 251), rgba(249, 250, 251, 0))'
+                width: '200px',
+                background: 'linear-gradient(to right, rgba(249, 250, 251, 1), rgba(249, 250, 251, 0))'
               }}
             ></div>
             
@@ -458,17 +625,19 @@ export default function AlltechSolutions() {
             <div 
               className="absolute top-0 right-0 h-full z-10 pointer-events-none"
               style={{
-                width: '250px',
-                background: 'linear-gradient(to left, rgb(249, 250, 251), rgba(249, 250, 251, 0))'
+                width: '200px',
+                background: 'linear-gradient(to left, rgba(249, 250, 251, 1), rgba(249, 250, 251, 0))'
               }}
             ></div>
             
-            {/* Sliding logos wrapper */}
+            {/* Sliding logos wrapper - ENDLESS SMOOTH ANIMATION */}
             <div 
-              className="flex"
+              className="flex animate-infinite-slide"
               style={{
-                animation: isVisible.clients ? '35s slide infinite linear' : 'none',
-                width: 'calc(200% + 192px)' // Double width plus one logo width for seamless loop
+                width: '200%', // Double width for seamless loop
+                willChange: 'transform',
+                backfaceVisibility: 'hidden', // Optimize for smooth animation
+                transform: 'translateZ(0)' // Force GPU acceleration
               }}
             >
               {/* First set of logos */}
@@ -516,15 +685,29 @@ export default function AlltechSolutions() {
           </div>
         </div>
         
-        {/* CSS Keyframes */}
+        {/* CSS Keyframes for ENDLESS SMOOTH Animation */}
         <style jsx>{`
-          @keyframes slide {
-            from {
-              transform: translateX(0);
+          @keyframes infiniteSlide {
+            0% {
+              transform: translate3d(0, 0, 0);
             }
-            to {
-              transform: translateX(-100%);
+            100% {
+              transform: translate3d(-50%, 0, 0);
             }
+          }
+          
+          .animate-infinite-slide {
+            animation: infiniteSlide 30s linear infinite;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          
+          /* Ensure no animation delays or interruptions */
+          .animate-infinite-slide * {
+            pointer-events: auto;
+            transform: translateZ(0);
           }
         `}</style>
       </section>
@@ -830,18 +1013,105 @@ export default function AlltechSolutions() {
         </div>
       </section>
 
-      {/* Footer with gradient */}
-      <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-12">
+      {/* Footer with comprehensive layout */}
+      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mb-4">
-              <h3 className="text-2xl font-bold mb-2">Alltech Solutions</h3>
-              <p className="text-gray-300">Fabrication Experts – Coimbatore</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            
+            {/* Company Section */}
+            <div>
+              <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wide">COMPANY</h3>
+              <ul className="space-y-4">
+                <li><button onClick={() => scrollToSection('about')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">About Us</button></li>
+                <li><button onClick={() => scrollToSection('about')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Our Team</button></li>
+                <li><button onClick={() => scrollToSection('projects')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Quality Assurance</button></li>
+                <li><button onClick={() => scrollToSection('clients')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Our Clients</button></li>
+              </ul>
             </div>
-            <div className="border-t border-gray-700 pt-4">
-              <p className="text-gray-400">
-                © 2025 Alltech Solutions. All rights reserved.
-              </p>
+
+            {/* Services Section */}
+            <div>
+              <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wide">SERVICES</h3>
+              <ul className="space-y-4">
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Pre-Engineered Structures</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Roofing Solutions</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Steel Doors & Windows</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Fire Rated Doors</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Chemical Anchoring</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Hand Railings</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">EOT Cranes</button></li>
+                <li><button onClick={() => scrollToSection('services')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Gantry Cranes</button></li>
+              </ul>
+            </div>
+
+            {/* Projects & Support */}
+            <div>
+              <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wide">PROJECTS</h3>
+              <ul className="space-y-4">
+                <li><button onClick={() => scrollToSection('projects')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Our Projects</button></li>
+                <li><button onClick={() => scrollToSection('projects')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Project Gallery</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Get Quote</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Technical Support</button></li>
+                <li><button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 transition-colors duration-300 cursor-pointer font-medium">Contact Us</button></li>
+              </ul>
+            </div>
+
+            {/* Contact & Company Info */}
+            <div>
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-white mb-4 uppercase tracking-tight">ALLTECH SOLUTIONS</h2>
+                <p className="text-gray-300 text-sm mb-6 leading-relaxed font-medium">FABRICATION EXPERTS – COIMBATORE</p>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <p className="text-blue-400 font-black text-sm uppercase tracking-wide mb-2">PHONE (INDIA)</p>
+                  <a href="tel:+919677879427" className="text-white text-xl font-black hover:text-blue-400 transition-colors duration-300">
+                    +91 9677879427
+                  </a>
+                </div>
+                
+                <div>
+                  <p className="text-blue-400 font-black text-sm uppercase tracking-wide mb-2">EMAIL</p>
+                  <a href="mailto:altechsolutionscoimbatore@gmail.com" className="text-white hover:text-blue-400 transition-colors duration-300 font-medium text-sm leading-tight">
+                    altechsolutionscoimbatore@gmail.com
+                  </a>
+                </div>
+                
+                <div>
+                  <p className="text-blue-400 font-black text-sm uppercase tracking-wide mb-2">LOCATION</p>
+                  <p className="text-gray-300 font-medium">Sundarapuram, Coimbatore 641024</p>
+                </div>
+              </div>
+              
+              {/* Social Media Icons */}
+              <div className="flex space-x-4 mt-8">
+                <div className="w-10 h-10 bg-gray-700 hover:bg-blue-600 rounded-lg flex items-center justify-center transition-all duration-300 cursor-pointer transform hover:scale-110">
+                  <span className="text-white text-lg font-bold">f</span>
+                </div>
+                <div className="w-10 h-10 bg-gray-700 hover:bg-red-600 rounded-lg flex items-center justify-center transition-all duration-300 cursor-pointer transform hover:scale-110">
+                  <span className="text-white text-lg font-bold">▶</span>
+                </div>
+                <div className="w-10 h-10 bg-gray-700 hover:bg-blue-500 rounded-lg flex items-center justify-center transition-all duration-300 cursor-pointer transform hover:scale-110">
+                  <span className="text-white text-lg font-bold">in</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bottom Section */}
+          <div className="border-t border-gray-700 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0">
+                <p className="text-gray-400 text-sm font-medium">
+                  © 2025 Alltech Solutions. All rights reserved.
+                </p>
+              </div>
+              <div className="flex space-x-6">
+                <button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 font-medium">Privacy Policy</button>
+                <button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 font-medium">Terms of Service</button>
+                <button onClick={() => scrollToSection('contact')} className="text-gray-400 hover:text-blue-400 text-sm transition-colors duration-300 font-medium">Contact</button>
+              </div>
             </div>
           </div>
         </div>
