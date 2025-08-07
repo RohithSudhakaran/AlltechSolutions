@@ -1,28 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 
-// Email configuration
+// Enhanced email configuration with better error handling
 const createTransporter = () => {
+  // Validate environment variables
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error('Email configuration missing: EMAIL_USER and EMAIL_PASS are required')
+  }
+
   return nodemailer.createTransport({
-    service: 'gmail', // You can change this to your preferred email service
+    service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER || 'your-email@gmail.com', // Your email
-      pass: process.env.EMAIL_PASS || 'your-app-password'     // Your app password
-    }
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    },
+    // Enhanced options for better reliability
+    pool: true,
+    maxConnections: 1,
+    rateDelta: 20000,
+    rateLimit: 5
   })
 }
 
-// Alternative: Using SMTP configuration
-const createSMTPTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER || 'your-email@gmail.com',
-      pass: process.env.EMAIL_PASS || 'your-app-password'
-    }
-  })
+// Test email connection
+const testEmailConnection = async () => {
+  try {
+    const transporter = createTransporter()
+    await transporter.verify()
+    console.log('✅ Email server connection verified')
+    return true
+  } catch (error) {
+    console.error('❌ Email server connection failed:', error)
+    return false
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -48,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the form submission
-    console.log('New contact form submission:', {
+    console.log('📧 New contact form submission:', {
       name,
       email,
       phone,
@@ -56,15 +66,29 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
 
+    // Test email connection first
+    console.log('🔍 Testing email connection...')
+    const connectionTest = await testEmailConnection()
+    
+    if (!connectionTest) {
+      console.error('❌ Email connection failed - proceeding anyway')
+      // Continue with submission but log the issue
+    }
+
     try {
-      // Create transporter
+      // Create transporter with enhanced error handling
       const transporter = createTransporter()
+      
+      // Verify transporter before sending
+      console.log('🔑 Verifying email transporter...')
+      await transporter.verify()
+      console.log('✅ Email transporter verified successfully')
 
       // Email to company (notification)
       const companyEmailOptions = {
-        from: process.env.EMAIL_USER || 'your-email@gmail.com',
-        to: process.env.COMPANY_EMAIL || 'info@alltechsolutions.com', // Company email
-        subject: `New Contact Form Submission from ${name}`,
+        from: process.env.EMAIL_USER,
+        to: process.env.COMPANY_EMAIL || process.env.EMAIL_USER, // Fallback to sender email
+        subject: `🔔 New Contact Form Submission from ${name}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
             <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -210,16 +234,44 @@ This is an automated response. Please do not reply to this email.
         `
       }
 
-      // Send emails
-      await transporter.sendMail(companyEmailOptions)
-      await transporter.sendMail(customerEmailOptions)
+      // Send emails with detailed logging
+      console.log('📤 Sending company notification email...')
+      const companyEmailResult = await transporter.sendMail(companyEmailOptions)
+      console.log('✅ Company notification sent:', companyEmailResult.messageId)
 
-      console.log('Emails sent successfully')
+      console.log('📤 Sending customer auto-reply email...')
+      const customerEmailResult = await transporter.sendMail(customerEmailOptions)
+      console.log('✅ Customer auto-reply sent:', customerEmailResult.messageId)
 
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError)
-      // Don't fail the request if email fails, just log it
-      // You might want to save to database as fallback
+      console.log('🎉 All emails sent successfully!')
+
+      // Close transporter
+      transporter.close()
+
+    } catch (emailError: any) {
+      console.error('❌ Email sending failed:', {
+        error: emailError.message,
+        code: emailError.code,
+        command: emailError.command
+      })
+      
+      // Return specific error message based on error type
+      if (emailError.code === 'EAUTH') {
+        return NextResponse.json({
+          error: 'Email authentication failed. Please check email credentials.',
+          success: false
+        }, { status: 500 })
+      } else if (emailError.code === 'ENOTFOUND') {
+        return NextResponse.json({
+          error: 'Email server not found. Please check internet connection.',
+          success: false
+        }, { status: 500 })
+      } else {
+        return NextResponse.json({
+          error: 'Failed to send email. Please try again later.',
+          success: false
+        }, { status: 500 })
+      }
     }
 
     return NextResponse.json({
@@ -236,10 +288,51 @@ This is an automated response. Please do not reply to this email.
   }
 }
 
-// Optional: Handle GET requests to this endpoint
-export async function GET() {
-  return NextResponse.json(
-    { message: 'Contact form endpoint is working!' },
-    { status: 200 }
-  )
+// Enhanced GET endpoint for testing email configuration
+export async function GET(request: NextRequest) {
+  try {
+    // Check if test parameter is provided
+    const { searchParams } = new URL(request.url)
+    const testEmail = searchParams.get('test')
+
+    if (testEmail === 'true') {
+      console.log('🧪 Testing email configuration...')
+      
+      // Test email connection
+      const connectionTest = await testEmailConnection()
+      
+      if (connectionTest) {
+        return NextResponse.json({
+          status: 'success',
+          message: 'Email configuration is working correctly!',
+          emailUser: process.env.EMAIL_USER ? 'Configured' : 'Missing',
+          emailPass: process.env.EMAIL_PASS ? 'Configured' : 'Missing',
+          companyEmail: process.env.COMPANY_EMAIL || 'Using EMAIL_USER as fallback'
+        }, { status: 200 })
+      } else {
+        return NextResponse.json({
+          status: 'error',
+          message: 'Email configuration test failed',
+          emailUser: process.env.EMAIL_USER ? 'Configured' : 'Missing',
+          emailPass: process.env.EMAIL_PASS ? 'Configured' : 'Missing',
+          companyEmail: process.env.COMPANY_EMAIL || 'Using EMAIL_USER as fallback'
+        }, { status: 500 })
+      }
+    }
+
+    return NextResponse.json({
+      message: 'Contact form endpoint is working!',
+      endpoints: {
+        POST: 'Submit contact form',
+        'GET?test=true': 'Test email configuration'
+      }
+    }, { status: 200 })
+
+  } catch (error) {
+    console.error('GET endpoint error:', error)
+    return NextResponse.json({
+      error: 'Failed to test email configuration',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
+  }
 }
